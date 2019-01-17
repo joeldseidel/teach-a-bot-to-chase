@@ -1,4 +1,4 @@
-﻿using System.Collections;
+﻿using System;
 using System.Collections.Generic;
 using UnityEngine;
 
@@ -8,6 +8,37 @@ public class UserCarController : MonoBehaviour
     public float maxMotorTorque;
     public float maxSteeringAngle;
     public List<Light> lights;
+    private Rigidbody carRigidbody;
+
+    public void FixedUpdate()
+    {
+        updateDriving();
+        if (Input.GetKeyDown(KeyCode.Escape))
+        {
+            Application.Quit();
+        }
+    }
+
+    public void updateDriving()
+    {
+        float motor = getMotorInput();
+        float steering = maxSteeringAngle * Input.acceleration.x;
+        foreach (AxleInfo axleInfo in axleInfos)
+        {
+            if (axleInfo.steering)
+            {
+                axleInfo.leftWheel.steerAngle = steering;
+                axleInfo.rightWheel.steerAngle = steering;
+            }
+            if (axleInfo.motor)
+            {
+                axleInfo.leftWheel.motorTorque = motor;
+                axleInfo.rightWheel.motorTorque = motor;
+            }
+            ApplyLocalPositionToVisuals(axleInfo.leftWheel);
+            ApplyLocalPositionToVisuals(axleInfo.rightWheel);
+        }
+    }
 
     public void ApplyLocalPositionToVisuals(WheelCollider collider)
     {
@@ -25,32 +56,47 @@ public class UserCarController : MonoBehaviour
 
     private bool inReverse = false;
 
-	public void FixedUpdate () {
-        float motor = maxMotorTorque * -1 * Input.GetAxis("Fire1") * (Input.acceleration.z + 0.25f) * 2;
-        float steering = maxSteeringAngle * Input.acceleration.x;
-        foreach (AxleInfo axleInfo in axleInfos)
+    public float getMotorInput()
+    {
+        //FIXME remove when I know that this works
+        //ORIGINAL MOTOR CALCULATION
+        ///float motor = maxMotorTorque * -1 * Input.GetAxis("Fire1") * (Input.acceleration.z + 0.25f) * 2;
+        //ORIGINAL MOTOR CALCULATION
+
+        float motor = 0;
+
+        //Get is the accelerator down
+        if (Convert.ToBoolean(Input.GetAxis("Fire1")))
         {
-            if(axleInfo.steering)
+            //Get the acclerometer input
+            if((Input.acceleration.z + 0.3f) > 0)
             {
-                axleInfo.leftWheel.steerAngle = steering;
-                axleInfo.rightWheel.steerAngle = steering;
+                setLightsEnabled(false);
+                //Go forward
+                //Remove the drag from the most recent brake
+                carRigidbody.drag = 0;
+                //Add the force to the motor
+                motor = maxMotorTorque * -1 * (Input.acceleration.z + 0.3f) * 3;
+                //FIXME speed limit
+                    //Quick responding acceleration to a clearly defined vehicle speed limit
             }
-            if (axleInfo.motor)
+            else
             {
-                axleInfo.leftWheel.motorTorque = motor;
-                axleInfo.rightWheel.motorTorque = motor;
+                //Brake
+                //Increase the drag on the car
+                carRigidbody.drag = 0.1f;
+                setLightsEnabled(true);
             }
-            ApplyLocalPositionToVisuals(axleInfo.leftWheel);
-            ApplyLocalPositionToVisuals(axleInfo.rightWheel);
         }
-        foreach(Light light in lights)
+        return motor;
+    }
+
+    void setLightsEnabled(bool lightsEnabled)
+    {
+        foreach (Light light in lights)
         {
             //Turn the lights on if the car is braking
-            light.enabled = System.Convert.ToBoolean((Input.acceleration.z + 0.25f) < 0);
-        }
-        if (Input.GetKeyDown(KeyCode.Escape))
-        {
-            Application.Quit();
+            light.enabled = lightsEnabled;
         }
     }
 }
