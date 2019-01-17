@@ -8,12 +8,6 @@ public class UserCarController : MonoBehaviour
     public float maxMotorTorque;
     public float maxSteeringAngle;
     public List<Light> lights;
-    private Vector3 lastPosition;
-
-    public void Start()
-    {
-        lastPosition = transform.position;
-    }
 
     public void ApplyLocalPositionToVisuals(WheelCollider collider)
     {
@@ -32,7 +26,7 @@ public class UserCarController : MonoBehaviour
     private bool inReverse = false;
 
 	public void FixedUpdate () {
-        float motor = maxMotorTorque * -1 * Input.GetAxis("Fire1");
+        float motor = maxMotorTorque * -1 * Input.GetAxis("Fire1") * (Input.acceleration.z + 0.25f) * 2;
         float steering = maxSteeringAngle * Input.acceleration.x;
         foreach (AxleInfo axleInfo in axleInfos)
         {
@@ -51,8 +45,8 @@ public class UserCarController : MonoBehaviour
         }
         foreach(Light light in lights)
         {
-            //Turn the lights on if the car is braking and not in reverse
-            light.enabled = System.Convert.ToBoolean(Input.GetAxis("Vertical") < 0) && !inReverse;
+            //Turn the lights on if the car is braking
+            light.enabled = System.Convert.ToBoolean((Input.acceleration.z + 0.25f) < 0);
         }
         if (Input.GetKeyDown(KeyCode.Escape))
         {
