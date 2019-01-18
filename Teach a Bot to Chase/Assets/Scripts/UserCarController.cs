@@ -10,6 +10,14 @@ public class UserCarController : MonoBehaviour
     public List<Light> lights;
     private Rigidbody carRigidbody;
 
+    public void Start()
+    {
+        //Assign the car's rigidbody
+        carRigidbody = GetComponent<Rigidbody>();
+        //Init car with lights off
+        setLightsEnabled(false);
+    }
+
     public void FixedUpdate()
     {
         //Update the driving input and perform logic
