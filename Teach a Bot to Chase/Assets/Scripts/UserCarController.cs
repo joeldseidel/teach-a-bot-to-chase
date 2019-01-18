@@ -26,6 +26,9 @@ public class UserCarController : MonoBehaviour
         if (Input.GetKeyDown(KeyCode.Escape)) { Application.Quit(); }
     }
 
+    /// <summary>
+    /// Manage the vehicle controls and apply input to the axles
+    /// </summary>
     public void updateDriving()
     {
         //Calculate motor force from input
@@ -36,6 +39,11 @@ public class UserCarController : MonoBehaviour
         updateAxles(motor, steering);
     }
 
+    /// <summary>
+    /// Send determined acceleration to the axles
+    /// </summary>
+    /// <param name="motor">motor magnitude</param>
+    /// <param name="steering">steering magnitude</param>
     void updateAxles(float motor, float steering)
     {
         //Apply steering / motor force to defined axles
@@ -60,6 +68,10 @@ public class UserCarController : MonoBehaviour
         }
     }
 
+    /// <summary>
+    /// Apply the movement from the collider to the visuals
+    /// </summary>
+    /// <param name="collider">wheel collider to sync game object with</param>
     public void ApplyLocalPositionToVisuals(WheelCollider collider)
     {
         if(collider.transform.childCount == 0)
@@ -75,17 +87,14 @@ public class UserCarController : MonoBehaviour
         visualWheel.transform.rotation = rotation;
     }
 
+    /// <summary>
+    /// Get mobile input for increaing the magnitude on the accelerator
+    /// </summary>
+    /// <returns>motor magnitude</returns>
     public float getMotorInput()
     {
-        //FIXME remove when I know that this works
-        //ORIGINAL MOTOR CALCULATION
-        ///float motor = maxMotorTorque * -1 * Input.GetAxis("Fire1") * (Input.acceleration.z + 0.25f) * 2;
-        //ORIGINAL MOTOR CALCULATION
-
         float motor = 0;
-
-        Debug.Log(carRigidbody.velocity.magnitude);
-
+        
         //Get is the accelerator down
         if (Convert.ToBoolean(Input.GetAxis("Fire1")))
         {
@@ -112,6 +121,10 @@ public class UserCarController : MonoBehaviour
         return motor;
     }
 
+    /// <summary>
+    /// Enable the brakelights when they should be occuring
+    /// </summary>
+    /// <param name="lightsEnabled">should the lights be on?</param>
     void setLightsEnabled(bool lightsEnabled)
     {
         foreach (Light light in lights)
