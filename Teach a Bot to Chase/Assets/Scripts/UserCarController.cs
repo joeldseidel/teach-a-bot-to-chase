@@ -84,11 +84,13 @@ public class UserCarController : MonoBehaviour
 
         float motor = 0;
 
+        Debug.Log(carRigidbody.velocity.magnitude);
+
         //Get is the accelerator down
         if (Convert.ToBoolean(Input.GetAxis("Fire1")))
         {
             //Get the acclerometer input
-            if((Input.acceleration.z + 0.3f) > 0)
+            if((Input.acceleration.z + 0.3f) > 0 && carRigidbody.velocity.magnitude < 30)
             {
                 setLightsEnabled(false);
                 //Go forward
@@ -103,7 +105,7 @@ public class UserCarController : MonoBehaviour
             {
                 //Brake
                 //Increase the drag on the car
-                carRigidbody.drag = 0.1f;
+                carRigidbody.drag = 0.5f;
                 setLightsEnabled(true);
             }
         }
